@@ -84,11 +84,6 @@ pip install PyQt6
 
 ---
 
-## Screenshots (Optional)
-*Coming Soon*: Add screenshots of the GUI interface showing the text box, sliders, and buttons.
-
----
-
 ## Troubleshooting
 
 ### Common Issues
