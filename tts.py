@@ -39,7 +39,7 @@ class TextToSpeechApp(QMainWindow):
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
 
-        # Layout
+        # Main layout
         layout = QVBoxLayout()
         central_widget.setLayout(layout)
 
@@ -53,31 +53,16 @@ class TextToSpeechApp(QMainWindow):
         self.char_counter_label = QLabel("Characters: 0", self)
         layout.addWidget(self.char_counter_label)
 
-        # Speed Slider Layout
-        speed_layout = QHBoxLayout()
-        self.speed_slider_label = QLabel("Speed: 280")
-        self.speed_slider = QSlider(Qt.Orientation.Horizontal)
-        self.speed_slider.setMinimum(80)
-        self.speed_slider.setMaximum(450)
-        self.speed_slider.setValue(280)
-        self.speed_slider.valueChanged.connect(self.update_speed_label)
-        speed_layout.addWidget(self.speed_slider_label)
-        speed_layout.addWidget(self.speed_slider)
-        layout.addLayout(speed_layout)
+        # Speed Slider
+        layout.addLayout(self.create_slider_layout("Speed", 80, 450, 280, self.update_speed_label))
 
-        # Pitch Slider Layout
-        pitch_layout = QHBoxLayout()
-        self.pitch_slider_label = QLabel("Pitch: 40")
-        self.pitch_slider = QSlider(Qt.Orientation.Horizontal)
-        self.pitch_slider.setMinimum(0)
-        self.pitch_slider.setMaximum(99)
-        self.pitch_slider.setValue(40)
-        self.pitch_slider.valueChanged.connect(self.update_pitch_label)
-        pitch_layout.addWidget(self.pitch_slider_label)
-        pitch_layout.addWidget(self.pitch_slider)
-        layout.addLayout(pitch_layout)
+        # Pitch Slider
+        layout.addLayout(self.create_slider_layout("Pitch", 0, 99, 40, self.update_pitch_label))
 
-        # Button layout
+        # Volume Slider
+        layout.addLayout(self.create_slider_layout("Volume", 0, 200, 100, self.update_volume_label))
+
+        # Buttons layout
         button_layout = QHBoxLayout()
 
         # Speak Button
@@ -105,11 +90,35 @@ class TextToSpeechApp(QMainWindow):
         self.button_stop.clicked.connect(self.stop_speaking)
         self.button_stop.setFixedHeight(60)
         button_layout.addWidget(self.button_stop)
+
+        # Sweep Button
+        self.button_sweep = QPushButton("🧹 Sweep", self)
+        self.button_sweep.clicked.connect(self.clear_textbox)
+        self.button_sweep.setFixedHeight(60)
+        button_layout.addWidget(self.button_sweep)
+
         layout.addLayout(button_layout)
 
+        # State variables
         self.espeak_process = None
         self.is_paused = False
         self.timer = QTimer()
+
+    def create_slider_layout(self, label, min_value, max_value, default_value, callback):
+        """Creates a slider layout with a label."""
+        layout = QHBoxLayout()
+        slider_label = QLabel(f"{label}: {default_value}")
+        slider = QSlider(Qt.Orientation.Horizontal)
+        slider.setMinimum(min_value)
+        slider.setMaximum(max_value)
+        slider.setValue(default_value)
+        slider.valueChanged.connect(lambda value: slider_label.setText(f"{label}: {value}"))
+        slider.valueChanged.connect(callback)
+        layout.addWidget(slider_label)
+        layout.addWidget(slider)
+        setattr(self, f"{label.lower()}_slider", slider)
+        setattr(self, f"{label.lower()}_slider_label", slider_label)
+        return layout
 
     def update_character_count(self):
         """Update the character counter based on text length."""
@@ -117,10 +126,20 @@ class TextToSpeechApp(QMainWindow):
         self.char_counter_label.setText(f"Characters: {char_count}")
 
     def update_speed_label(self):
-        self.speed_slider_label.setText(f"Speed: {self.speed_slider.value()}")
+        """Handle speed slider changes."""
+        pass
 
     def update_pitch_label(self):
-        self.pitch_slider_label.setText(f"Pitch: {self.pitch_slider.value()}")
+        """Handle pitch slider changes."""
+        pass
+
+    def update_volume_label(self):
+        """Handle volume slider changes."""
+        pass
+
+    def clear_textbox(self):
+        """Clear all text from the textbox."""
+        self.textbox.clear()
 
     def normalize_text(self, text):
         """Normalize the input text to remove inconsistencies."""
@@ -135,30 +154,29 @@ class TextToSpeechApp(QMainWindow):
         raw_text = self.textbox.toPlainText()
 
         # Extract text starting from the cursor position
-        text_from_cursor = raw_text[start_pos:]
+        text_from_cursor = raw_text[start_pos:].strip()
+        if not text_from_cursor:
+            QMessageBox.warning(self, "Error", "No text available to speak from the cursor position.")
+            return
+
         normalized_text = self.normalize_text(text_from_cursor)
 
         speed = self.speed_slider.value()
         pitch = self.pitch_slider.value()
-
-        if not normalized_text:
-            QMessageBox.warning(self, "Error", "Please place the cursor in the text and ensure there is text to speak.")
-            return
+        volume = self.volume_slider.value()
 
         self.stop_speaking()
 
         try:
-            espeak_cmd = ["espeak", f"-s{speed}", f"-p{pitch}", normalized_text]
+            espeak_cmd = ["espeak", f"-s{speed}", f"-p{pitch}", f"-a{volume}", normalized_text]
+            print("Executing command:", " ".join(espeak_cmd))  # Debug log
             self.espeak_process = subprocess.Popen(
                 espeak_cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
             )
-
             self.button_speak.setEnabled(False)
             self.button_pause.setEnabled(True)
-
             self.timer.timeout.connect(self.check_process)
             self.timer.start(100)
-
         except FileNotFoundError:
             QMessageBox.critical(self, "Error", "espeak command not found. Please ensure espeak is installed.")
         except Exception as e:

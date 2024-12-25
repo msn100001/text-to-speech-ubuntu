@@ -1,89 +1,119 @@
-# Text to Speech (TTS) GUI for Linux / Ubuntu / Kubuntu
 
-![image](https://github.com/user-attachments/assets/42784801-a81f-4d81-9b5c-7a98eae66c5c)
+# Text-to-Speech Application
 
+A Python-based text-to-speech application using `espeak` and `PyQt6`. This software provides a graphical interface for converting text to speech with options to adjust speed, pitch, and volume. It also features HTML text normalization, cursor-based playback, and more.
 
-## 🎁 Installation
-1. Download [tts.py](https://raw.githubusercontent.com/gnat/text-to-speech-ubuntu/refs/heads/main/tts.py) to your Desktop.
-2. Install dependencies: `sudo apt install espeak python3-pyqt6`
-3. Make runnable: `cd ~/Desktop; chmod +x ./tts.py`
-4. Create `tts.desktop`
-```ini
-#!/usr/bin/env xdg-open
-[Desktop Entry]
-Name=Text To Speech (espeak)
-Exec=/usr/bin/python3 /home/$USER/Desktop/tts.py
-Icon=audio-on
-Terminal=false
-Type=Application
-Categories=Utility;
+---
+
+## Features
+
+### Core Functionality
+- **Text-to-Speech**: Convert any text input into speech using the `espeak` command-line tool.
+- **Start from Cursor**: Speech begins from the current cursor position in the text editor.
+- **Pause/Resume**: Pause and resume speech playback.
+- **Stop**: Stop speech playback at any point.
+
+### Additional Features
+- **Sweep Button**: Clears all text from the input field.
+- **HTML Normalization**: Automatically strips out HTML tags from pasted content.
+- **Character Counter**: Displays the number of characters in the text editor.
+- **Adjustable Sliders**:
+  - **Speed**: Control the speed of speech (range: 80–450).
+  - **Pitch**: Adjust the pitch of the voice (range: 0–99).
+  - **Volume**: Set the volume of the voice (range: 0–200).
+
+---
+
+## Dependencies
+
+### Required Software
+- **Python 3.x**: Make sure Python 3.x is installed on your system.
+- **espeak**: A speech synthesizer command-line tool.
+- **PyQt6**: A Python library for creating graphical user interfaces.
+
+---
+
+## Installation
+
+### 1. Install Python 3.x
+Most Linux systems come with Python pre-installed. To verify, run:
+```bash
+python3 --version
 ```
 
-Short and sweet single Python script. Built in Qt 6. Supports both Wayland and X11
+If not installed, install Python 3.x:
+```bash
+sudo apt update
+sudo apt install python3 python3-pip
+```
 
-<br><br>
+### 2. Install `espeak`
+Install `espeak` for text-to-speech functionality:
+```bash
+sudo apt install espeak
+```
 
-----
+### 3. Install `PyQt6`
+Install the `PyQt6` library using pip:
+```bash
+pip install PyQt6
+```
 
-# 🪦 Old Method (Deprecated)
+---
 
-**Below is deprecated because Wayland has no support for retrieving selected text.**
+## Usage
 
-## Text to Speech (TTS) Shortcut Ubuntu
+### Running the Program
+1. Save the script as `tts.py` or another filename of your choice.
+2. Make the script executable:
+   ```bash
+   chmod +x tts.py
+   ```
+3. Run the script:
+   ```bash
+   ./tts.py
+   ```
 
-For speed reading, researching, programming, editing and writing.
+### GUI Functionality
+- **Enter Text**: Type or paste text into the text box.
+- **Adjust Sliders**: Use the sliders to modify speech speed, pitch, and volume.
+- **Speak**: Click the **Speak** button to start text-to-speech.
+- **Pause/Resume**: Use the **Pause** and **Resume** buttons to control playback.
+- **Stop**: Stop speech playback at any time.
+- **Sweep**: Clear all text from the input field using the **Sweep** button.
 
-Tested on Ubuntu 24.04, 22.04, 22.10, 23.04, 23.10, but should work on similar distributions such as Mint, Debian, Pop OS. `xsel` required so espeak can read from clipboard. Works with `espeak` or `espeak-ng`.
+---
 
-1. `sudo apt install espeak xsel -y`
-2. Set your custom shortcuts. See [Gnome](#gnome) or [KDE](#kde) below.
-3. With your mouse, select text you want read aloud, press your Read keys.
+## Screenshots (Optional)
+*Coming Soon*: Add screenshots of the GUI interface showing the text box, sliders, and buttons.
 
+---
 
-### Gnome
+## Troubleshooting
 
-* **System Settings** ➡ **Keyboard** ➡ **Keyboard Shortcuts** ➡ **Custom Shortcuts** ➡ **+**
-* **Read** `bash -c "espeak -s260 -g0 -p40 -v english-us \"$(xsel | sed -e :a -e 'N;s/\n/ /;ta')\""`
-* **Stop Reading** `bash -c "killall espeak"`
-* Recommended keys **SUPER + R** (Read) and **SHIFT + SUPER + R** (Stop Reading)
-* With your mouse, select text you want read aloud, press your Read keys.
+### Common Issues
+1. **`espeak` Not Found**:
+   Ensure `espeak` is installed:
+   ```bash
+   sudo apt install espeak
+   ```
+2. **Missing PyQt6**:
+   Install it using pip:
+   ```bash
+   pip install PyQt6
+   ```
+3. **Program Does Not Start**:
+   Check for Python errors by running the script directly:
+   ```bash
+   python3 tts.py
+   ```
 
-![image](https://github.com/user-attachments/assets/35b475ca-fca8-4ea0-b52e-470b216b7a10)
+---
 
-### KDE
-KDE is a little different because custom shortcuts have an issue with multiple commands in the same action, but this works:
+## Contributions
+Contributions are welcome! Please open a pull request or submit an issue if you encounter bugs or have feature suggestions.
 
-* **System Settings** ➡ **Shortcuts** ➡ **Custom Shortcuts** ➡ **Edit .. New .. Global .. Command**
-* **Read** `xsel > /tmp/speak.txt | espeak -s260 -g0 -p40 -v english-us -f /tmp/speak.txt`
-* **Stop Reading** `killall espeak`
-* Recommended keys **SUPER + R** (Read) and **SHIFT + SUPER + R** (Stop Reading)
-* With your mouse, select text you want read aloud, press your Read keys.
+---
 
-![Screenshot_20231024_225433](https://github.com/gnat/text-to-speech-ubuntu/assets/24665/dcd36a3d-7ad1-4de3-bb8a-98202091d18e)
-
-
-### Options
-* `-s260` Speed of reading (260 is faster).
-* `-g0` Delay between words (0 is no delay).
-* `-p40` Pitch (50 is normal).
-* `-v english-us` Voice pack (en-us for `espeak-ng`).
-
-### Sed explainer.
-The sed is required to replace newlines properly. Reference: https://linux.die.net/man/1/sed
-
-* `-e :a` Sets `a` label for looping.
-* `N` Read next line into substitute buffer ... or `$!N` (`$` go to EOL, `!N` exit if no more newlines to read)
-* `;s/\n/ /` Substitute newlines with space.
-* `;ta` Loop to label `a`.
-
-### Using espeak-ng instead of espeak
-Some distributions come with `espeak-ng` which can be used with only minor changes.
-
-1. **Read** `bash -c "espeak-ng -s260 -g0 -p40 -v en-us \"$(xsel | sed -e :a -e 'N;s/\n/ /;ta')\""`
-2. **Stop Reading** `bash -c "killall espeak-ng"`
-
-### Killing espeak if needed.
-* `ps -ef | grep "espeak" | tr -s ' ' | cut -d ' ' -f2 | xargs kill -9`
-
-### Why?
-Because my favorite TTS reader [gespeaker](https://github.com/muflone/gespeaker) (python frontend to espeak) is unmaintained, and most other options suck or are browser only.
+## License
+This project is open-source and available under the MIT License.
