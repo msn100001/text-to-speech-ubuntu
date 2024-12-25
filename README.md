@@ -102,12 +102,6 @@ pip install PyQt6
    ```bash
    python3 tts.py
    ```
-
----
-
-## Contributions
-Contributions are welcome! Please open a pull request or submit an issue if you encounter bugs or have feature suggestions.
-
 ---
 
 ## License
